@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Suas configurações existentes
-  
+  // Disable image optimization completely
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -13,11 +12,8 @@ const nextConfig = {
       },
     ],
   },
-  // Add this to help with the Tailwind CSS Oxide error
-  experimental: {
-    // This will disable the new Rust compiler which is causing issues
-    disableExperimentalRsc: true
-  }
+  // Downgrade from the SWC minifier to terser
+  swcMinify: false
 };
 
 module.exports = nextConfig;
