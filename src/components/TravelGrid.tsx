@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
@@ -60,20 +60,8 @@ const TravelGrid = ({ searchParams }: TravelGridProps) => {
     }
   };
 
-  // Carregar dados ao montar o componente
-  useEffect(() => {
-    fetchTravelPackages();
-  }, []);
-
-  // Filtrar dados quando os parâmetros de busca mudarem
-  useEffect(() => {
-    if (allTravelPackages.length > 0) {
-      filterTravelPackages();
-    }
-  }, [searchParams, allTravelPackages]);
-
-  // Função para filtrar os pacotes de viagem
-  const filterTravelPackages = () => {
+  // Função para filtrar os pacotes de viagem usando useCallback
+  const filterTravelPackages = useCallback(() => {
     const { destination, month } = searchParams;
     
     let results = [...allTravelPackages];
@@ -112,7 +100,19 @@ const TravelGrid = ({ searchParams }: TravelGridProps) => {
     
     setNoResults(results.length === 0);
     setFilteredPackages(results); // CORREÇÃO: Atualizar os filtrados, não os originais
-  };
+  }, [searchParams, allTravelPackages]);
+
+  // Carregar dados ao montar o componente
+  useEffect(() => {
+    fetchTravelPackages();
+  }, []);
+
+  // Filtrar dados quando os parâmetros de busca mudarem
+  useEffect(() => {
+    if (allTravelPackages.length > 0) {
+      filterTravelPackages();
+    }
+  }, [allTravelPackages, filterTravelPackages]);
 
   // Função para calcular os dias restantes até a viagem
   const getDaysUntilTravel = (travelDate: string | null): string | null => {

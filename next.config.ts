@@ -1,11 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Manter a configuração para desativar o compilador Oxide
+  // Remover a opção que não é reconhecida nesta versão
   experimental: {
-    disableExperimentalTailwindcssCompiler: true
+    // Oxide já não é mais um problema no Next.js 15+
   },
-  // Manter suas configurações de imagens existentes
   images: {
     domains: ['vandre-backend.vercel.app'],
     remotePatterns: [
@@ -16,13 +15,9 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
-    // Adicionar formatos para melhorar a compatibilidade com Sharp
-    formats: ['image/avif', 'image/webp'],
     // Configurações para melhorar a compatibilidade do Sharp
-    dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    formats: ['image/avif', 'image/webp'],
   },
-  // Manter suas configurações de rewrites
   async rewrites() {
     return [
       {
@@ -35,9 +30,8 @@ const nextConfig = {
       },
     ];
   },
-  // Adicionar variáveis de ambiente para resolver os problemas
+  // Ainda mantemos as variáveis de ambiente para o Sharp
   env: {
-    NEXT_DISABLE_OXIDE: '1',
     SHARP_IGNORE_GLOBAL_LIBVIPS: '1'
   }
 };
