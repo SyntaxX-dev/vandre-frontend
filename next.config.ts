@@ -1,7 +1,29 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  images: {
+    domains: ['vandre-backend.vercel.app'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'vandre-backend.vercel.app',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/travel-packages',
+        destination: 'https://vandre-backend.vercel.app/api/travel-packages',
+      },
+      {
+        source: '/travel-packages/:path*',
+        destination: 'https://vandre-backend.vercel.app/travel-packages/:path*',
+      },
+    ];
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
