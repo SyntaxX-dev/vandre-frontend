@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    disableExperimentalTailwindcssCompiler: true
+  },
   images: {
     domains: ['vandre-backend.vercel.app'],
     remotePatterns: [
