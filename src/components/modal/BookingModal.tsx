@@ -124,6 +124,7 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
           setDate(undefined);
         }, 2000);
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(
         err.response?.data?.message || 
@@ -257,7 +258,6 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
                         mode="single"
                         selected={date}
                         onSelect={handleDateChange}
-                        initialFocus
                         disabled={(date) => date > new Date()}
                       />
                     </PopoverContent>
