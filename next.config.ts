@@ -13,6 +13,11 @@ const nextConfig = {
       },
     ],
   },
+  // Add this to help with the Tailwind CSS Oxide error
+  experimental: {
+    // This will disable the new Rust compiler which is causing issues
+    disableExperimentalRsc: true
+  }
 };
 
 module.exports = nextConfig;
