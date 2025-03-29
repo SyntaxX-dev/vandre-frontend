@@ -12,8 +12,6 @@ const nextConfig = {
       },
     ],
   },
-  // Downgrade from the SWC minifier to terser
-  swcMinify: false
 };
 
 module.exports = nextConfig;
