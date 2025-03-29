@@ -1,17 +1,11 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  // Disable image optimization completely
+module.exports = {
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'vandre-backend.vercel.app',
-        port: '',
-        pathname: '/**',
-      },
-    ],
-  },
+        protocol: "https",
+        hostname: "vandre-backend.vercel.app",
+        pathname: "/**"
+      }
+    ]
+  }
 };
-
-module.exports = nextConfig;
