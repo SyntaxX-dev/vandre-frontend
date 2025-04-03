@@ -15,22 +15,19 @@ const CarouselBanner = () => {
       id: 1,
       image: VanTest,
       title: "Destinos Incríveis",
-      description: "Visite os lugares mais deslumbrantes do mundo com pacotes exclusivos",
-      ctaText: "Explorar Destinos",
+      description: "Visite os lugares mais deslumbrantes do mundo com pacotes exclusivos"
     },
     {
       id: 2,
       image: VanTest,
       title: "Pacotes para Família",
-      description: "Crie memórias inesquecíveis com quem você ama em viagens especiais",
-      ctaText: "Ver Pacotes",
+      description: "Crie memórias inesquecíveis com quem você ama em viagens especiais"
     },
     {
       id: 3,
       image: VanTest,
       title: "Experiências Únicas",
-      description: "Descubra aventuras personalizadas para todos os tipos de viajantes",
-      ctaText: "Conhecer Mais",
+      description: "Descubra aventuras personalizadas para todos os tipos de viajantes"
     },
   ];
 
@@ -45,7 +42,7 @@ const CarouselBanner = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       nextSlide();
-    }, 5000);
+    }, 80000);
 
     return () => clearInterval(interval);
   }, [nextSlide]);
@@ -71,10 +68,7 @@ const CarouselBanner = () => {
 
             <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6 md:px-12">
               <h2 className="text-white text-3xl md:text-5xl font-bold mb-4">{slide.title}</h2>
-              <p className="text-white text-base md:text-lg mb-6 max-w-2xl">{slide.description}</p>
-              <Button className="rounded-full bg-blue-500 hover:bg-blue-600 text-white px-6">
-                {slide.ctaText}
-              </Button>
+              <p className="text-white text-base md:text-lg mb-6 max-w-2xl md:w-auto w-[78%]">{slide.description}</p>
             </div>
           </div>
         ))}

@@ -259,6 +259,7 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
                         selected={date}
                         onSelect={handleDateChange}
                         disabled={(date) => date > new Date()}
+                        className="bg-white rounded-md border"
                       />
                     </PopoverContent>
                   </Popover>

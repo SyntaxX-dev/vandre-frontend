@@ -6,7 +6,9 @@ import {
   CardContent 
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { SetStateAction, useState, useRef, useEffect } from "react";
+import { SetStateAction, useState, useRef, useEffect, useCallback } from "react";
+
+import { debounce } from "lodash";
 
 import CarouselBanner from "@/components/carrossel/CarouselBanner";
 import SearchInput from "@/components/search/SearchInput";
@@ -17,8 +19,8 @@ export default function Home() {
   const [searchParams, setSearchParams] = useState({ destination: "", month: "" });
   const [scrollPosition, setScrollPosition] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState("")
   
-  // Refs para as seções
   const topRef = useRef<HTMLDivElement>(null);
   const pacotesRef = useRef<HTMLDivElement>(null);
   const contatoRef = useRef<HTMLDivElement>(null);
@@ -27,34 +29,60 @@ export default function Home() {
     setSearchParams(params);
   };
 
+  const handleHeroSearch = () => {
+    setSearchParams({ destination: searchInput, month: "" }); // Atualiza os parâmetros de busca
+    scrollToSection("pacotes"); // Faz o scroll até a seção de pacotes
+  };
+
   useEffect(() => {
-    const handleScroll = () => {
-      setScrollPosition(window.scrollY);
-    };
-    
+    const handleScroll = debounce(() => {
+      const scrollY = window.scrollY;
+      setScrollPosition(scrollY);
+  
+      // Obtém as posições das seções
+      const topSection = topRef.current?.offsetTop || 0;
+      const pacotesSection = pacotesRef.current?.offsetTop || 0;
+      const contatoSection = contatoRef.current?.offsetTop || 0;
+  
+      // Define margens para considerar quando uma seção está "ativa"
+      const offset = 100; // Ajuste conforme necessário
+  
+      // Verifica em qual seção o usuário está
+      if (scrollY >= contatoSection - offset) {
+        setActiveTab("contato");
+      } else if (scrollY >= pacotesSection - offset) {
+        setActiveTab("pacotes");
+      } else if (scrollY >= topSection - offset) {
+        setActiveTab("inicio");
+      }
+    }, 100);
+  
     window.addEventListener("scroll", handleScroll);
-    
+  
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      handleScroll.cancel();
     };
   }, []);
   
-  // Funções para scrollar para as seções
-  const scrollToSection = (sectionId: string) => {
+  const scrollToSection = useCallback((sectionId: string) => {
     setActiveTab(sectionId);
-    
-    if (sectionId === "inicio" && topRef.current) {
-      topRef.current.scrollIntoView({ behavior: "smooth" });
-    } else if (sectionId === "pacotes" && pacotesRef.current) {
-      pacotesRef.current.scrollIntoView({ behavior: "smooth" });
-    } else if (sectionId === "contato" && contatoRef.current) {
-      contatoRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  
+    const scroll = () => {
+      if (sectionId === "inicio" && topRef.current) {
+        topRef.current.scrollIntoView({ behavior: "smooth" });
+      } else if (sectionId === "pacotes" && pacotesRef.current) {
+        pacotesRef.current.scrollIntoView({ behavior: "smooth" });
+      } else if (sectionId === "contato" && contatoRef.current) {
+        contatoRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+  
+    setTimeout(scroll, 50);
+  }, []);
   
   return (
     <div className="flex flex-col font-sans min-h-screen relative">
-      {/* Background Image - Covers only navbar and hero section */}
       <div ref={topRef} className="absolute top-0 left-0 right-0 h-screen z-0">
         <div 
           className="absolute inset-0 bg-cover bg-center"
@@ -64,7 +92,6 @@ export default function Home() {
             height: "100%"
           }}
         />
-        {/* Semi-transparent overlay to improve text readability */}
         <div className="absolute inset-0 bg-black/30"></div>
       </div>
     
@@ -88,7 +115,7 @@ export default function Home() {
             <div className={`${scrollPosition > 10 ? 'bg-white/10' : 'bg-white/10'} backdrop-blur-sm rounded-full p-1 flex relative`}>
               {/* Indicador deslizante que se move para o botão ativo */}
               <div 
-                className="absolute bg-white rounded-full transition-all duration-300 shadow-sm"
+                className="absolute bg-white rounded-full transition-[left,width] duration-300 shadow-sm"
                 style={{
                   left: activeTab === "inicio" ? "0.45rem" : 
                         activeTab === "pacotes" ? "calc(33.33% + 0.22rem)" : 
@@ -98,7 +125,7 @@ export default function Home() {
                   top: "0.25rem",
                 }}
               />
-              
+                            
               <Button 
                 variant="ghost" 
                 className={`px-5 py-1 text-sm rounded-full transition-colors duration-300 z-10 w-1/3 ${
@@ -138,14 +165,28 @@ export default function Home() {
               variant="ghost"
               size="icon"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-white mr-2 p-3" // Increased padding for larger clickable area
+              className="text-white mr-2 p-3"
             >
               {mobileMenuOpen ? (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  strokeWidth={1.5} 
+                  stroke="white"
+                  className="!w-8 !h-8"
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  strokeWidth={1.5} 
+                  stroke="white"
+                  className="!w-8 !h-8"
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 </svg>
               )}
@@ -153,16 +194,27 @@ export default function Home() {
           </div>
 
           {/* CTA Button */}
-          <Button className="rounded-full hidden md:flex" size="sm">
-            Planejar a sua viagem
-            <svg className="w-4 h-4 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 18l6-6-6-6" />
-            </svg>
+          <Button 
+            asChild
+            className="rounded-full hidden md:flex bg-gray-600 hover:bg-gray-600 text-white font-semibold px-6 py-2 shadow-lg transform transition-all duration-300 hover:scale-105"
+            size="sm"
+          >
+            <a 
+              href="https://wa.me/5511948007051?text=Olá!%20Gostaria%20de%20planejar%20minha%20viagem%20com%20a%20Turma%20do%20Vandré.%20Pode%20me%20ajudar?" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center"
+            >
+              Planejar a sua viagem
+              <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </a>
           </Button>
         </div>
 
         {/* Mobile Menu Dropdown */}
-        <div className={`md:hidden overflow-hidden transition-all duration-300 ${
+        <div className={`md:hidden overflow-hidden transition-max-height duration-300 ease-in-out ${
           mobileMenuOpen ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'
         }`}>
           <div className="container mx-auto px-4 py-4 bg-black/20 backdrop-blur-md rounded-lg mb-4">
@@ -208,13 +260,18 @@ export default function Home() {
                 <input 
                   type="text" 
                   placeholder="Para onde você quer ir?" 
-                  className="w-full border-none outline-none text-base py-2 px-4"
+                  className="w-full border-none outline-none text-base py-2 px-4 bg-transparent"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                 />
               </div>
               <div className="p-2 flex items-center">
-                <Button className="bg-blue-500 hover:bg-blue-600 rounded-full px-6 py-6 flex items-center justify-center h-10">
-                  <span className="hidden sm:flex">Encontrar viagem</span>
-                  <MagnifyingGlass className="w-4 h-4 mx-1 sm:mx-0 sm:ml-2" />
+                <Button 
+                  className="bg-blue-500 hover:bg-blue-600 rounded-full px-6 py-6 flex items-center justify-center h-10 transition-all duration-500 ease-in-out transform"
+                  onClick={handleHeroSearch}
+                >
+                  <span className="hidden sm:flex text-white">Encontrar viagem</span>
+                  <MagnifyingGlass className="w-4 h-4 mx-1 sm:mx-0 sm:ml-2 text-white" />
                 </Button>
               </div>
             </CardContent>
@@ -222,7 +279,7 @@ export default function Home() {
         </div>
       </div>
       
-      <div className="mb-8 md:mb-0 px-8 sm:px-20 md:px-28 mt-8 md:mt-12">
+      <div className="mb-8 md:mb-0 px-4 sm:px-20 md:px-28 mt-8 md:mt-12">
         <CarouselBanner />
       </div>
 
@@ -241,7 +298,7 @@ export default function Home() {
       </div>
 
       {/* WhatsApp Contact Section */}
-      <div ref={contatoRef} className="py-16 bg-gray-50 relative z-10">
+      <div ref={contatoRef} className="py-32 bg-gray-50 relative z-10">
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between px-4 md:px-6 py-8 bg-white rounded-2xl shadow-md">
             <div className="md:w-2/3 mb-8 md:mb-0 md:pr-8">
@@ -352,7 +409,7 @@ export default function Home() {
 
             {/* Column 3: Destinos */}
             <div className="md:col-span-1">
-              <h3 className="text-lg font-semibold mb-4">Destinos Populares</h3>
+              <h3 className="text-lg font-semibold mb-4">Destinos</h3>
               <ul className="space-y-2 text-blue-200">
                 <li><a href="#" className="hover:text-white transition-colors">Fernando de Noronha</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Cancún, México</a></li>
@@ -371,25 +428,29 @@ export default function Home() {
                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 mr-3 mt-1 text-blue-300">
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                   </svg>
-                  <span className="text-blue-200">Av. Presidente Wilson, 1234<br />Santos, SP, 11065-000</span>
+                  <span className="text-blue-200">Rua Capitão Alberto Graff 129<br />Centro/Caieiras - SP</span>
+
                 </li>
                 <li className="flex items-center">
                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 mr-3 text-blue-300">
                     <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
                   </svg>
-                  <span className="text-blue-200">(13) 3456-7890</span>
+                  <div className="flex flex-col">
+                    <span className="text-blue-200">(11) 4605-0203</span>
+                    <span className="text-blue-200">(11) 94800-7051</span>
+                  </div>
                 </li>
                 <li className="flex items-center">
                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 mr-3 text-blue-300">
                     <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
                   </svg>
-                  <span className="text-blue-200 lg:text-xs xl:text-base">contato@turmadoVandre.com.br</span>
+                  <span className="text-blue-200 lg:text-xs xl:text-base">atendimento@turmadovandre.com.br</span>
                 </li>
                 <li className="flex items-center">
                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 mr-3 text-blue-300">
                     <path d="M12 0C7.11 0 3.4 1.96 3.4 4.2v15.6c0 2.24 3.71 4.2 8.6 4.2s8.6-1.96 8.6-4.2V4.2c0-2.24-3.71-4.2-8.6-4.2zm0 24c-5.17 0-9.6-2.09-9.6-4.8V6.79c1.96 1.66 5.37 2.81 9.6 2.81s7.64-1.15 9.6-2.81v12.41c0 2.71-4.43 4.8-9.6 4.8zm0-18c-5.17 0-9.6-2.09-9.6-4.8S6.83 1.2 12 1.2s9.6 2.09 9.6 4.8S17.17 6 12 6z" />
                   </svg>
-                  <span className="text-blue-200">CNPJ: 12.345.678/0001-90</span>
+                  <span className="text-blue-200">CNPJ: 40.714.437/0001-01</span>
                 </li>
               </ul>
             </div>
