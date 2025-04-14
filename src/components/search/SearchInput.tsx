@@ -31,8 +31,8 @@ const SearchInput = ({ onSearch }: SearchInputProps) => {
   };
 
   return (
-    <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row items-center bg-white rounded-2xl md:rounded-full shadow-md px-2 py-4 w-full max-w-5xl">
-      <div className="flex w-[80%] md:w-0 items-center space-x-2 flex-1 min-w-0 border-b md:border-b-0 md:border-r border-gray-200 p-2 md:p-3">
+    <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row items-center bg-white rounded-2xl md:rounded-full shadow-md px-2 py-4 md:py-0 w-full max-w-5xl">
+      <div className="flex w-[80%] md:w-0 items-center space-x-2 flex-1 min-w-0 border-b md:border-b-0 md:border-r border-gray-200 p-2 md:pl-2">
         <MapPin className="h-5 w-5 text-blue-500 flex-shrink-0" />
         <div className="flex-1 min-w-0">
           <p className="text-xs text-gray-500 font-medium">Destino</p>
@@ -46,7 +46,7 @@ const SearchInput = ({ onSearch }: SearchInputProps) => {
         </div>
       </div>
 
-      <div className="flex w-[80%] md:w-0 items-center space-x-2 flex-1 min-w-0 border-b md:border-b-0 md:border-r border-gray-200 p-2 md:p-3">
+      <div className="flex w-[80%] md:w-0 items-center space-x-2 flex-1 min-w-0 border-b md:border-b-0 md:border-r border-gray-200 p-2 md:pr-2">
         <Calendar className="h-5 w-5 text-blue-500 flex-shrink-0" />
         <div className="flex-1 min-w-0">
           <p className="text-xs text-gray-500 font-medium">Mês</p>

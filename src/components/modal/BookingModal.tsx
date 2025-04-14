@@ -98,11 +98,35 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
-
+  
+    // Basic validation
+    if (!formData.fullName || !formData.email || !formData.cpf || 
+        !formData.rg || !formData.phone || !formData.birthDate || 
+        !formData.boardingLocation) {
+      setError("Por favor, preencha todos os campos obrigatórios.");
+      setIsSubmitting(false);
+      return;
+    }
+  
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Por favor, insira um email válido.");
+      setIsSubmitting(false);
+      return;
+    }
+  
+    // Format data if needed
+    const formattedData = {
+      ...formData,
+      // Make sure birthDate is in ISO format
+      birthDate: new Date(formData.birthDate).toISOString(),
+    };
+  
     try {
       const response = await axios.post(
         "https://vandre-backend.vercel.app/api/bookings",
-        formData
+        formattedData
       );
       
       if (response.status === 201) {
@@ -124,8 +148,8 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
           setDate(undefined);
         }, 2000);
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
+      console.error("Booking error:", err);
       setError(
         err.response?.data?.message || 
         "Ocorreu um erro ao fazer a reserva. Por favor, tente novamente."

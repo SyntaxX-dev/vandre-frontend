@@ -5,7 +5,9 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import VanTest from "../../../public/images/vanTest.jpeg";
+import photo2 from "../../../public/images/photo-2.jpeg";
+import photo3 from "../../../public/images/photo-3.jpeg";
+import photo4 from "../../../public/images/photo-4.jpeg";
 
 const CarouselBanner = () => {
   const [activeSlide, setActiveSlide] = useState(0);
@@ -13,19 +15,19 @@ const CarouselBanner = () => {
   const slides = [
     {
       id: 1,
-      image: VanTest,
+      image: photo2,
       title: "Destinos Incríveis",
       description: "Visite os lugares mais deslumbrantes do mundo com pacotes exclusivos"
     },
     {
       id: 2,
-      image: VanTest,
+      image: photo3,
       title: "Pacotes para Família",
       description: "Crie memórias inesquecíveis com quem você ama em viagens especiais"
     },
     {
       id: 3,
-      image: VanTest,
+      image: photo4,
       title: "Experiências Únicas",
       description: "Descubra aventuras personalizadas para todos os tipos de viajantes"
     },
