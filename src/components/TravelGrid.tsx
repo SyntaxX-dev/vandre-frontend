@@ -6,8 +6,8 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import BookingModal from "./modal/BookingModal";
+import { FileText } from "phosphor-react";
 
-// Update interface to match the actual API response
 interface TravelPackage {
   id: string;
   name: string;
@@ -16,10 +16,11 @@ interface TravelPackage {
   pdfUrl: string;
   maxPeople: number;
   boardingLocations: string[];
-  travelMonth: string;  // Different from the original interface
+  travelMonth: string;
   travelDate: string | null;
+  returnDate: string | null;
   travelTime: string | null;
-  imageUrl?: string;  // This is now directly from the API
+  imageUrl?: string;
   created_at: string;
   updated_at: string;
 }
@@ -44,7 +45,6 @@ const TravelGrid = ({ searchParams }: TravelGridProps) => {
       setError(null);
       
       try {
-        // Update this URL to match your actual API endpoint
         const response = await axios.get("https://vandre-backend.vercel.app/api/travel-packages");
         setPackages(response.data);
       } catch (err) {
@@ -58,15 +58,12 @@ const TravelGrid = ({ searchParams }: TravelGridProps) => {
     fetchPackages();
   }, []);
 
-  // Filter packages based on search parameters
   const filteredPackages = packages.filter((item) => {
-    // Assuming "destination" is part of the name or description since it's not in the API
     const matchesDestination =
       !searchParams.destination ||
       item.name.toLowerCase().includes(searchParams.destination.toLowerCase()) ||
       item.description.toLowerCase().includes(searchParams.destination.toLowerCase());
       
-    // Updated to use travelMonth instead of month
     const matchesMonth =
       !searchParams.month ||
       searchParams.month === "all" ||
@@ -80,11 +77,29 @@ const TravelGrid = ({ searchParams }: TravelGridProps) => {
     setIsModalOpen(true);
   };
 
-  // Format date and time for display
-  const formatDateAndTime = (date: string | null, time: string | null) => {
+  const handleOpenPdf = (pdfUrl: string) => {
+    window.open(pdfUrl, "_blank");
+  };
+
+  const formatDate = (date: string | null) => {
     if (!date) return "Data não definida";
-    // If there's time, append it
-    return time ? `${date} às ${time}` : date;
+    return date;
+  };
+
+  const formatTravelPeriod = (departureDate: string | null, returnDate: string | null, time: string | null) => {
+    if (!departureDate) return "Data não definida";
+    
+    let formattedPeriod = `Ida: ${departureDate}`;
+    
+    if (time) {
+      formattedPeriod += ` às ${time}`;
+    }
+    
+    if (returnDate) {
+      formattedPeriod += ` | Volta: ${returnDate}`;
+    }
+    
+    return formattedPeriod;
   };
 
   if (loading) {
@@ -142,7 +157,6 @@ const TravelGrid = ({ searchParams }: TravelGridProps) => {
               <h3 className="font-bold text-lg text-gray-800">{item.name}</h3>
               <p className="text-gray-500 text-sm mb-4 line-clamp-2">{item.description}</p>
               
-              {/* We don't have a destination field, so either remove this or use another field */}
               <div className="flex items-center mb-2">
                 <MapPin className="h-4 w-4 text-blue-500 mr-2" />
                 <span className="text-gray-600 text-sm">{item.name}</span>
@@ -151,7 +165,7 @@ const TravelGrid = ({ searchParams }: TravelGridProps) => {
               <div className="flex items-center mb-2">
                 <Calendar className="h-4 w-4 text-blue-500 mr-2" />
                 <span className="text-gray-600 text-sm">
-                  {formatDateAndTime(item.travelDate, item.travelTime)}
+                  {formatTravelPeriod(item.travelDate, item.returnDate, item.travelTime)}
                 </span>
               </div>
               
@@ -160,10 +174,10 @@ const TravelGrid = ({ searchParams }: TravelGridProps) => {
                 <span className="text-gray-600 text-sm">{item.travelMonth}</span>
               </div>
               
-              <div className="flex items-center justify-between mt-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-2 gap-2">
                 <div>
                   <p className="text-gray-500 text-xs">A partir de</p>
-                  <p className="text-gray-900 font-bold text-xl">
+                  <p className="text-gray-900 font-bold text-lg">
                     {new Intl.NumberFormat('pt-BR', { 
                       style: 'currency', 
                       currency: 'BRL' 
@@ -171,12 +185,24 @@ const TravelGrid = ({ searchParams }: TravelGridProps) => {
                   </p>
                 </div>
                 
-                <Button 
-                  className="text-white rounded-xl bg-blue-500 hover:bg-blue-600 px-6 py-2 transition-all duration-500 ease-in-out transform"
-                  onClick={() => handleBookClick(item)}
-                >
-                  Reservar
-                </Button>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleOpenPdf(item.pdfUrl)}
+                    className="flex items-center gap-1 text-xs py-1 h-8 flex-1 sm:flex-auto"
+                  >
+                    <FileText size={14} />
+                    PDF
+                  </Button>
+                  
+                  <Button 
+                    className="text-white rounded-xl bg-blue-500 hover:bg-blue-600 text-xs py-1 h-8 flex-1 sm:flex-auto"
+                    onClick={() => handleBookClick(item)}
+                  >
+                    Reservar
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -190,10 +216,9 @@ const TravelGrid = ({ searchParams }: TravelGridProps) => {
           travelPackage={{
             id: selectedPackage.id,
             name: selectedPackage.name,
-            // Adapting the fields to what BookingModal expects
             pdfUrl: selectedPackage.pdfUrl,
             boardingLocations: selectedPackage.boardingLocations.flatMap(loc => 
-              loc.split(',') // Split by comma since the API returns a single item with comma-separated values
+              loc.split(',')
             )
           }}
         />

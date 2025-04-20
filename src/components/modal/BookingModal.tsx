@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import axios from "axios";
-import { format } from "date-fns";
-import { Calendar } from "lucide-react";
+import { format, parse } from "date-fns";
+import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,14 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { FileText } from "lucide-react";
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -54,7 +46,6 @@ interface BookingFormData {
 }
 
 const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => {
-  const [date, setDate] = useState<Date | undefined>(undefined);
   const [formData, setFormData] = useState<BookingFormData>({
     travelPackageId: travelPackage.id,
     fullName: "",
@@ -71,6 +62,100 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    
+    // Aplicar máscara para o campo de data de nascimento
+    if (name === "birthDate") {
+      // Remove caracteres não numéricos
+      const numericValue = value.replace(/\D/g, "");
+      
+      // Aplica a máscara xx/xx/xxxx
+      let maskedValue = "";
+      if (numericValue.length <= 2) {
+        maskedValue = numericValue;
+      } else if (numericValue.length <= 4) {
+        maskedValue = `${numericValue.slice(0, 2)}/${numericValue.slice(2)}`;
+      } else {
+        maskedValue = `${numericValue.slice(0, 2)}/${numericValue.slice(2, 4)}/${numericValue.slice(4, 8)}`;
+      }
+      
+      setFormData((prev) => ({
+        ...prev,
+        [name]: maskedValue,
+      }));
+      return;
+    }
+    
+    // Aplicar máscara para o campo CPF
+    if (name === "cpf") {
+      // Remove caracteres não numéricos
+      const numericValue = value.replace(/\D/g, "");
+      
+      // Aplica a máscara 000.000.000-00
+      let maskedValue = "";
+      if (numericValue.length <= 3) {
+        maskedValue = numericValue;
+      } else if (numericValue.length <= 6) {
+        maskedValue = `${numericValue.slice(0, 3)}.${numericValue.slice(3)}`;
+      } else if (numericValue.length <= 9) {
+        maskedValue = `${numericValue.slice(0, 3)}.${numericValue.slice(3, 6)}.${numericValue.slice(6)}`;
+      } else {
+        maskedValue = `${numericValue.slice(0, 3)}.${numericValue.slice(3, 6)}.${numericValue.slice(6, 9)}-${numericValue.slice(9, 11)}`;
+      }
+      
+      setFormData((prev) => ({
+        ...prev,
+        [name]: maskedValue,
+      }));
+      return;
+    }
+    
+    // Aplicar máscara para o campo RG
+    if (name === "rg") {
+      // Remove caracteres não numéricos
+      const numericValue = value.replace(/\D/g, "");
+      
+      // Aplica a máscara 00.000.000-0
+      let maskedValue = "";
+      if (numericValue.length <= 2) {
+        maskedValue = numericValue;
+      } else if (numericValue.length <= 5) {
+        maskedValue = `${numericValue.slice(0, 2)}.${numericValue.slice(2)}`;
+      } else if (numericValue.length <= 8) {
+        maskedValue = `${numericValue.slice(0, 2)}.${numericValue.slice(2, 5)}.${numericValue.slice(5)}`;
+      } else {
+        maskedValue = `${numericValue.slice(0, 2)}.${numericValue.slice(2, 5)}.${numericValue.slice(5, 8)}-${numericValue.slice(8, 9)}`;
+      }
+      
+      setFormData((prev) => ({
+        ...prev,
+        [name]: maskedValue,
+      }));
+      return;
+    }
+    
+    // Aplicar máscara para o campo telefone
+    if (name === "phone") {
+      // Remove caracteres não numéricos
+      const numericValue = value.replace(/\D/g, "");
+      
+      // Aplica a máscara (00) 00000-0000
+      let maskedValue = "";
+      if (numericValue.length <= 2) {
+        maskedValue = numericValue.length ? `(${numericValue}` : "";
+      } else if (numericValue.length <= 7) {
+        maskedValue = `(${numericValue.slice(0, 2)}) ${numericValue.slice(2)}`;
+      } else {
+        maskedValue = `(${numericValue.slice(0, 2)}) ${numericValue.slice(2, 7)}-${numericValue.slice(7, 11)}`;
+      }
+      
+      setFormData((prev) => ({
+        ...prev,
+        [name]: maskedValue,
+      }));
+      return;
+    }
+    
+    // Para os outros campos, atualiza normalmente
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -84,13 +169,30 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
     }));
   };
 
-  const handleDateChange = (date: Date | undefined) => {
-    setDate(date);
-    if (date) {
-      setFormData((prev) => ({
-        ...prev,
-        birthDate: format(date, "yyyy-MM-dd"),
-      }));
+  const formatDateForServer = (dateStr: string) => {
+    // Converte de DD/MM/YYYY para YYYY-MM-DD (formato ISO)
+    if (!dateStr || dateStr.length !== 10) return "";
+    
+    try {
+      const parts = dateStr.split("/");
+      if (parts.length !== 3) return "";
+      
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10);
+      const year = parseInt(parts[2], 10);
+      
+      // Validação básica
+      if (
+        isNaN(day) || day < 1 || day > 31 ||
+        isNaN(month) || month < 1 || month > 12 ||
+        isNaN(year) || year < 1900 || year > new Date().getFullYear()
+      ) {
+        return "";
+      }
+      
+      return `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+    } catch (error) {
+      return "";
     }
   };
 
@@ -107,6 +209,21 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
       setIsSubmitting(false);
       return;
     }
+    
+    // Validação do formato da data
+    if (formData.birthDate.length !== 10 || !formData.birthDate.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+      setError("A data de nascimento deve estar no formato DD/MM/AAAA.");
+      setIsSubmitting(false);
+      return;
+    }
+    
+    // Conversão da data
+    const formattedDate = formatDateForServer(formData.birthDate);
+    if (!formattedDate) {
+      setError("Data de nascimento inválida.");
+      setIsSubmitting(false);
+      return;
+    }
   
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -119,8 +236,8 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
     // Format data if needed
     const formattedData = {
       ...formData,
-      // Make sure birthDate is in ISO format
-      birthDate: new Date(formData.birthDate).toISOString(),
+      // Converter para ISO format
+      birthDate: new Date(formattedDate).toISOString(),
     };
   
     try {
@@ -145,7 +262,6 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
             email: "",
             boardingLocation: travelPackage.boardingLocations[0] || "",
           });
-          setDate(undefined);
         }, 2000);
       }
     } catch (err: any) {
@@ -263,30 +379,16 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Data de nascimento</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !date && "text-muted-foreground"
-                        )}
-                      >
-                        <Calendar className="mr-2 h-4 w-4" />
-                        {date ? format(date, "dd/MM/yyyy") : "Selecione uma data"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <CalendarComponent
-                        mode="single"
-                        selected={date}
-                        onSelect={handleDateChange}
-                        disabled={(date) => date > new Date()}
-                        className="bg-white rounded-md border"
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <Label htmlFor="birthDate">Data de nascimento</Label>
+                  <Input
+                    id="birthDate"
+                    name="birthDate"
+                    value={formData.birthDate}
+                    onChange={handleInputChange}
+                    placeholder="DD/MM/AAAA"
+                    required
+                    maxLength={10}
+                  />
                 </div>
                 
                 <div className="space-y-2">
@@ -320,7 +422,7 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
               <Button variant="outline" onClick={onClose} type="button">
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button className="bg-blue-500 hover:bg-blue-600 text-white mb-4" type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Processando..." : "Confirmar Reserva"}
               </Button>
             </DialogFooter>

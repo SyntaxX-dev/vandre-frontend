@@ -13,6 +13,9 @@ import { debounce } from "lodash";
 import CarouselBanner from "@/components/carrossel/CarouselBanner";
 import SearchInput from "@/components/search/SearchInput";
 import TravelGrid from "@/components/TravelGrid";
+import axios from "axios";
+import Image from "next/image";
+import Logo_branco from "../../public/images/logo-vandre-branca.svg";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("inicio");
@@ -24,6 +27,29 @@ export default function Home() {
   const topRef = useRef<HTMLDivElement>(null);
   const pacotesRef = useRef<HTMLDivElement>(null);
   const contatoRef = useRef<HTMLDivElement>(null);
+
+  const [footerDestinations, setFooterDestinations] = useState<Array<{id: string, name: string}>>([]);
+
+  useEffect(() => {
+    const fetchDestinations = async () => {
+      try {
+        const response = await axios.get("https://vandre-backend.vercel.app/api/travel-packages");
+        // Get the first 6 destinations or all if less than 6
+        const topDestinations = response.data
+          .slice(0, 6)
+          .map((pkg: any) => ({ id: pkg.id, name: pkg.name }));
+        
+        setFooterDestinations(topDestinations);
+      } catch (error) {
+        console.error("Failed to fetch destinations:", error);
+        // Set some fallback destinations in case the API fails
+        setFooterDestinations([]);
+      }
+    };
+  
+    fetchDestinations();
+  }, []);
+  
   
   const handleSearch = (params: SetStateAction<{ destination: string; month: string; }>) => {
     setSearchParams(params);
@@ -102,12 +128,17 @@ export default function Home() {
           backdropFilter: scrollPosition > 10 || mobileMenuOpen ? 'blur(8px)' : 'none',
         }}>
         <div className="container mx-auto flex items-center justify-between py-4">
+
           {/* Logo */}
           <div className="text-2xl font-bold text-white flex items-center">
-            <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 mr-1">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-            </svg>
-            Turma do Vandré
+            <div className="relative flex items-center justify-center">
+              {/* Multiple layers for smoky effect */}
+              <div className="absolute w-20 h-20 bg-black/10 rounded-full blur-xl"></div>
+              <div className="absolute w-18 h-18 bg-black/20 rounded-full blur-lg"></div>
+              <div className="absolute w-16 h-16 bg-black/30 rounded-full blur-md"></div>
+              <Image width={80} height={80} src={Logo_branco} alt="logo branca" className="relative z-10"/>
+            </div>
+            <span className="hidden md:inline ml-2">Turma do Vandré</span>
           </div>
 
           {/* Desktop Navigation Menu */}
@@ -346,6 +377,77 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Sobre Nós Section - Add this below the WhatsApp Contact Section */}
+      <div className="py-24 relative overflow-hidden mb-32">
+        {/* Background pattern */}
+        <div className="absolute inset-0 z-0">
+          <div 
+            className="absolute inset-0 bg-cover bg-center opacity-90"
+            style={{
+              backgroundImage: "url('/images/fundo-vandre-preto.svg')",
+              width: "100%",
+              height: "100%"
+            }}
+          />
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+        </div>
+
+        <div className="container mx-auto relative z-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+            {/* Logo Section */}
+            <div className="md:w-1/3 flex justify-center">
+              <div className="relative transform transition duration-500 hover:scale-105">
+                <Image 
+                  src="/images/logo-vandre-colorido-st.svg" 
+                  alt="Turma do Vandré Logo" 
+                  width={300} 
+                  height={300}
+                  className="drop-shadow-xl"
+                />
+              </div>
+            </div>
+
+            {/* About Section */}
+            <div className="md:w-2/3 text-white px-6 md:px-0">
+              <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center md:text-left">Sobre a Turma do Vandré</h2>
+              
+              <div className="space-y-4 max-w-2xl">
+                <p className="text-gray-200">
+                  Somos uma agência de turismo apaixonada por criar experiências de viagem inesquecíveis. Desde 2010, conectamos pessoas a destinos extraordinários com pacotes personalizados que atendem a todos os estilos de viajantes.
+                </p>
+                
+                <p className="text-gray-200">
+                  Nossa missão é proporcionar momentos únicos através de roteiros cuidadosamente planejados, com atendimento personalizado e compromisso com a satisfação de nossos clientes.
+                </p>
+                
+                <p className="text-gray-200">
+                  Com a Turma do Vandré, sua viagem começa muito antes do embarque - começa no momento em que você sonha com seu próximo destino.
+                </p>
+                
+                <div className="pt-6">
+                  <Button 
+                    asChild
+                    className="rounded-xl bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 shadow-lg transform transition-all duration-300 hover:scale-105"
+                  >
+                    <a 
+                      href="https://www.instagram.com/turmadovandre/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center"
+                    >
+                      Conheça nossa história
+                      <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M9 18l6-6-6-6" />
+                      </svg>
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Footer */}
       <footer className="bg-blue-900 text-white pt-16 pb-8 relative z-10">
         <div className="container mx-auto px-4">
@@ -363,12 +465,12 @@ export default function Home() {
                 Criando experiências inesquecíveis e conectando pessoas a destinos extraordinários desde 2010.
               </p>
               <div className="flex space-x-4">
-                <a href="#" className="text-white hover:text-blue-300 transition-colors">
+                <a href="https://web.facebook.com/turmadovandre/?locale=pt_BR&_rdc=1&_rdr#" className="text-white hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">
                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
                     <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z" />
                   </svg>
                 </a>
-                <a href="#" className="text-white hover:text-blue-300 transition-colors">
+                <a href="https://www.instagram.com/turmadovandre/" className="text-white hover:text-blue-300 transition-colors" target="_blank" rel="noopener noreferrer">
                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
                     <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2zm-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25zM12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z" />
                   </svg>
@@ -411,12 +513,33 @@ export default function Home() {
             <div className="md:col-span-1">
               <h3 className="text-lg font-semibold mb-4">Destinos</h3>
               <ul className="space-y-2 text-blue-200">
-                <li><a href="#" className="hover:text-white transition-colors">Fernando de Noronha</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Cancún, México</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Porto de Galinhas</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Chapada Diamantina</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Buenos Aires</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Santiago do Chile</a></li>
+                {footerDestinations.length > 0 ? (
+                  footerDestinations.map((destination) => (
+                    <li key={destination.id}>
+                      <button
+                        onClick={() => {
+                          // Set search params to filter packages by this destination
+                          setSearchParams({ destination: destination.name, month: "" });
+                          // Scroll to the packages section
+                          scrollToSection("pacotes");
+                        }}
+                        className="hover:text-white transition-colors text-blue-200 text-left"
+                      >
+                        {destination.name}
+                      </button>
+                    </li>
+                  ))
+                ) : (
+                  // Fallback items if no destinations are loaded
+                  <>
+                    <li><button onClick={() => scrollToSection("pacotes")} className="hover:text-white transition-colors text-blue-200 text-left">Pacotes Nacionais</button></li>
+                    <li><button onClick={() => scrollToSection("pacotes")} className="hover:text-white transition-colors text-blue-200 text-left">Pacotes Internacionais</button></li>
+                    <li><button onClick={() => scrollToSection("pacotes")} className="hover:text-white transition-colors text-blue-200 text-left">Praias</button></li>
+                    <li><button onClick={() => scrollToSection("pacotes")} className="hover:text-white transition-colors text-blue-200 text-left">Montanhas</button></li>
+                    <li><button onClick={() => scrollToSection("pacotes")} className="hover:text-white transition-colors text-blue-200 text-left">Cidades Históricas</button></li>
+                    <li><button onClick={() => scrollToSection("pacotes")} className="hover:text-white transition-colors text-blue-200 text-left">Aventura</button></li>
+                  </>
+                )}
               </ul>
             </div>
 
