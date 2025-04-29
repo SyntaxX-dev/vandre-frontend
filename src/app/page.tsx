@@ -16,6 +16,7 @@ import TravelGrid from "@/components/TravelGrid";
 import axios from "axios";
 import Image from "next/image";
 import Logo_branco from "../../public/images/logo-vandre-branca.svg";
+import GoogleReviewsSection from "@/components/GoogleReviewsSection";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("inicio");
@@ -327,6 +328,8 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      <GoogleReviewsSection />
 
       {/* WhatsApp Contact Section */}
       <div ref={contatoRef} className="py-32 bg-gray-50 relative z-10">

@@ -38,6 +38,10 @@ const TravelGrid = ({ searchParams }: TravelGridProps) => {
   const [error, setError] = useState<string | null>(null);
   const [selectedPackage, setSelectedPackage] = useState<TravelPackage | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Novo estado para controlar a paginação
+  const [visiblePackages, setVisiblePackages] = useState(9); // Inicialmente mostra 9 pacotes
+  const packagesPerLoad = 3; // Carrega 3 pacotes por vez ao clicar em "Ver mais"
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -57,6 +61,10 @@ const TravelGrid = ({ searchParams }: TravelGridProps) => {
 
     fetchPackages();
   }, []);
+
+  useEffect(() => {
+    setVisiblePackages(9);
+  }, [searchParams]);
 
   const filteredPackages = packages.filter((item) => {
     const matchesDestination =
@@ -102,6 +110,11 @@ const TravelGrid = ({ searchParams }: TravelGridProps) => {
     return formattedPeriod;
   };
 
+  // Função para carregar mais pacotes
+  const loadMorePackages = () => {
+    setVisiblePackages(prevVisible => prevVisible + packagesPerLoad);
+  };
+
   if (loading) {
     return (
       <div className="py-12 text-center">
@@ -135,10 +148,16 @@ const TravelGrid = ({ searchParams }: TravelGridProps) => {
     );
   }
 
+  // Limita o número de pacotes visíveis
+  const visibleFilteredPackages = filteredPackages.slice(0, visiblePackages);
+  
+  // Verifica se há mais pacotes para mostrar
+  const hasMorePackages = visiblePackages < filteredPackages.length;
+
   return (
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredPackages.map((item) => (
+        {visibleFilteredPackages.map((item) => (
           <div key={item.id} className="relative bg-white rounded-2xl shadow-sm border border-gray-100 transition-all duration-300 ease-in-out transform hover:-translate-y-2 hover:shadow-lg">
             {item.imageUrl ? (
               <Image 
@@ -208,6 +227,26 @@ const TravelGrid = ({ searchParams }: TravelGridProps) => {
           </div>
         ))}
       </div>
+      
+      {/* Botão "Ver mais" */}
+      {hasMorePackages && (
+        <div className="mt-12 text-center">
+          <Button 
+            onClick={loadMorePackages}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-full shadow-md transform transition-all duration-300 hover:scale-105"
+          >
+            Ver mais pacotes
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-5 w-5 ml-2" 
+              viewBox="0 0 20 20" 
+              fill="currentColor"
+            >
+              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </Button>
+        </div>
+      )}
       
       {selectedPackage && (
         <BookingModal
