@@ -416,7 +416,7 @@ export default function Home() {
               
               <div className="space-y-4 max-w-2xl">
                 <p className="text-gray-200">
-                  Somos uma agência de turismo apaixonada por criar experiências de viagem inesquecíveis. Desde 2010, conectamos pessoas a destinos extraordinários com pacotes personalizados que atendem a todos os estilos de viajantes.
+                  Somos uma agência de turismo apaixonada por criar experiências de viagens inesquecíveis. Desde 2010, conectamos pessoas a destinos extraordinários com pacotes personalizados que atendem a todos os estilos de viajantes.
                 </p>
                 
                 <p className="text-gray-200">
