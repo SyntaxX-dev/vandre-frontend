@@ -212,7 +212,8 @@ const TravelGrid = ({ searchParams }: TravelGridProps) => {
                     className="flex items-center gap-1 text-xs py-1 h-8 flex-1 sm:flex-auto"
                   >
                     <FileText size={14} />
-                    PDF
+                    <span className="hidden sm:inline md:hidden">Info..</span>
+                    <span className="inline sm:hidden md:inline">Informações</span>
                   </Button>
                   
                   <Button 
