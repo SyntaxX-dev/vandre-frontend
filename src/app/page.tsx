@@ -283,7 +283,7 @@ export default function Home() {
           </h1>
           <p className="text-white text-sm md:text-base max-w-2xl mb-8">
             Experimente a magia de explorar os destinos mais deslumbrantes do mundo 
-            com os nossos pacotes de viagem personalizados para todos os aventureiros.
+            com os nossos pacotes de viagens personalizados para todos os aventureiros.
           </p>
 
           <Card className="w-full max-w-4xl bg-white/95 backdrop-blur-sm rounded-full border-0 shadow-lg">
