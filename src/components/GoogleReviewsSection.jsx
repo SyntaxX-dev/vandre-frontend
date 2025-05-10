@@ -23,7 +23,7 @@ export default function ComponenteAvaliacao() {
       </div>
 
       <div className="container mx-auto relative z-10">
-        <Card className="max-w-2xl mx-auto bg-white/90 backdrop-blur-md shadow-xl border-0 overflow-hidden rounded-2xl">
+        <Card className="w-[90%] max-w-2xl mx-auto bg-white/90 backdrop-blur-md shadow-xl border-0 overflow-hidden rounded-2xl">
           <div className="p-8 flex flex-col md:flex-row items-center gap-8">
             {/* Ícone do Google */}
             <div className="md:w-1/4 flex justify-center">

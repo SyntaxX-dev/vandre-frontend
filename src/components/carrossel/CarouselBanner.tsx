@@ -5,8 +5,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import photo2 from "../../../public/images/photo-2.jpeg";
-import photo3 from "../../../public/images/photo-3.jpeg";
+import photo2 from "../../../public/images/photo-2.jpg";
+import photo3 from "../../../public/images/photo-3.jpg";
 import photo4 from "../../../public/images/photo-4.jpeg";
 
 const CarouselBanner = () => {
@@ -17,19 +17,19 @@ const CarouselBanner = () => {
       id: 1,
       image: photo2,
       title: "Destinos Incríveis",
-      description: "Visite os lugares mais deslumbrantes do mundo com pacotes exclusivos"
+      description: "Visite os lugares mais deslumbrantes do mundo com pacotes exclusivos",
     },
     {
       id: 2,
       image: photo3,
       title: "Pacotes para Família",
-      description: "Crie memórias inesquecíveis com quem você ama em viagens especiais"
+      description: "Crie memórias inesquecíveis com quem você ama em viagens especiais",
     },
     {
       id: 3,
       image: photo4,
       title: "Experiências Únicas",
-      description: "Descubra aventuras personalizadas para todos os tipos de viajantes"
+      description: "Descubra aventuras personalizadas para todos os tipos de viajantes",
     },
   ];
 
@@ -55,25 +55,37 @@ const CarouselBanner = () => {
         className="flex transition-transform duration-500 ease-in-out h-full"
         style={{ transform: `translateX(-${activeSlide * 100}%)` }}
       >
-        {slides.map((slide) => (
-          <div key={slide.id} className="min-w-full h-full relative">
-            <div className="absolute inset-0">
-              <Image
-                src={slide.image}
-                alt={slide.title}
-                fill
-                className="object-cover"
-                priority
-              />
-              <div className="absolute inset-0 bg-black/40"></div>
-            </div>
+        {slides.map((slide) => {
+          // Posições específicas para cada slide
+          let objectPosition;
+          if (slide.id === 1) { // photo2
+            objectPosition = "md:object-[center_05%] object-center";
+          } else if (slide.id === 2) { // photo3
+            objectPosition = "md:object-[center_70%] object-center";
+          } else { // photo4 e outros
+            objectPosition = "object-center";
+          }
 
-            <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6 md:px-12">
-              <h2 className="text-white text-3xl md:text-5xl font-bold mb-4">{slide.title}</h2>
-              <p className="text-white text-base md:text-lg mb-6 max-w-2xl md:w-auto w-[78%]">{slide.description}</p>
+          return (
+            <div key={slide.id} className="min-w-full h-full relative">
+              <div className="absolute inset-0">
+                <Image
+                  src={slide.image}
+                  alt={slide.title}
+                  fill
+                  className={`object-cover ${objectPosition}`}
+                  priority
+                />
+                <div className="absolute inset-0 bg-black/40"></div>
+              </div>
+
+              <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6 md:px-12">
+                <h2 className="text-white text-3xl md:text-5xl font-bold mb-4">{slide.title}</h2>
+                <p className="text-white text-base md:text-lg mb-6 max-w-2xl md:w-auto w-[78%]">{slide.description}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="absolute inset-0 flex items-center justify-between px-4">

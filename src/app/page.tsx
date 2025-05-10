@@ -564,6 +564,7 @@ export default function Home() {
                   <div className="flex flex-col">
                     <span className="text-blue-200">(11) 4605-0203</span>
                     <span className="text-blue-200">(11) 94800-7051</span>
+                    <span className="text-blue-200">(11) 97373-9350</span>
                   </div>
                 </li>
                 <li className="flex items-center">
