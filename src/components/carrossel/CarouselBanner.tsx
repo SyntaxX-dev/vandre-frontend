@@ -44,7 +44,7 @@ const CarouselBanner = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       nextSlide();
-    }, 80000);
+    }, 8000);
 
     return () => clearInterval(interval);
   }, [nextSlide]);
