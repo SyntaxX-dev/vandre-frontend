@@ -1,5 +1,4 @@
 const API_URL =
-  "http://localhost:3001";
-
+  "https://vandre-backend.vercel.app";
 
 export { API_URL};

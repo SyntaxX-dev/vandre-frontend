@@ -57,7 +57,7 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
     birthDate: "",
     phone: "",
     email: "",
-    boardingLocation: travelPackage.boardingLocations?.[0] || "",
+    boardingLocation: travelPackage.boardingLocations[0] || "",
     city: "",
     howDidYouMeetUs: "",
   });
@@ -272,7 +272,7 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
             birthDate: "",
             phone: "",
             email: "",
-            boardingLocation: travelPackage.boardingLocations?.[0] || "",
+            boardingLocation: travelPackage.boardingLocations[0] || "",
             city: "",
             howDidYouMeetUs: "",
           });
