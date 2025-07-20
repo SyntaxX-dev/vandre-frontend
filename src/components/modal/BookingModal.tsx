@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { API_URL } from "@/api/apiurl";
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -43,6 +44,8 @@ interface BookingFormData {
   phone: string;
   email: string;
   boardingLocation: string;
+  city: string;
+  howDidYouMeetUs: string;
 }
 
 const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => {
@@ -54,7 +57,9 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
     birthDate: "",
     phone: "",
     email: "",
-    boardingLocation: travelPackage.boardingLocations[0] || "",
+    boardingLocation: travelPackage.boardingLocations?.[0] || "",
+    city: "",
+    howDidYouMeetUs: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,12 +67,12 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
+
     // Aplicar máscara para o campo de data de nascimento
     if (name === "birthDate") {
       // Remove caracteres não numéricos
       const numericValue = value.replace(/\D/g, "");
-      
+
       // Aplica a máscara xx/xx/xxxx
       let maskedValue = "";
       if (numericValue.length <= 2) {
@@ -77,19 +82,19 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
       } else {
         maskedValue = `${numericValue.slice(0, 2)}/${numericValue.slice(2, 4)}/${numericValue.slice(4, 8)}`;
       }
-      
+
       setFormData((prev) => ({
         ...prev,
         [name]: maskedValue,
       }));
       return;
     }
-    
+
     // Aplicar máscara para o campo CPF
     if (name === "cpf") {
       // Remove caracteres não numéricos
       const numericValue = value.replace(/\D/g, "");
-      
+
       // Aplica a máscara 000.000.000-00
       let maskedValue = "";
       if (numericValue.length <= 3) {
@@ -101,19 +106,19 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
       } else {
         maskedValue = `${numericValue.slice(0, 3)}.${numericValue.slice(3, 6)}.${numericValue.slice(6, 9)}-${numericValue.slice(9, 11)}`;
       }
-      
+
       setFormData((prev) => ({
         ...prev,
         [name]: maskedValue,
       }));
       return;
     }
-    
+
     // Aplicar máscara para o campo RG
     if (name === "rg") {
       // Remove caracteres não numéricos
       const numericValue = value.replace(/\D/g, "");
-      
+
       // Aplica a máscara 00.000.000-0
       let maskedValue = "";
       if (numericValue.length <= 2) {
@@ -125,19 +130,19 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
       } else {
         maskedValue = `${numericValue.slice(0, 2)}.${numericValue.slice(2, 5)}.${numericValue.slice(5, 8)}-${numericValue.slice(8, 9)}`;
       }
-      
+
       setFormData((prev) => ({
         ...prev,
         [name]: maskedValue,
       }));
       return;
     }
-    
+
     // Aplicar máscara para o campo telefone
     if (name === "phone") {
       // Remove caracteres não numéricos
       const numericValue = value.replace(/\D/g, "");
-      
+
       // Aplica a máscara (00) 00000-0000
       let maskedValue = "";
       if (numericValue.length <= 2) {
@@ -147,14 +152,14 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
       } else {
         maskedValue = `(${numericValue.slice(0, 2)}) ${numericValue.slice(2, 7)}-${numericValue.slice(7, 11)}`;
       }
-      
+
       setFormData((prev) => ({
         ...prev,
         [name]: maskedValue,
       }));
       return;
     }
-    
+
     // Para os outros campos, atualiza normalmente
     setFormData((prev) => ({
       ...prev,
@@ -169,18 +174,25 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
     }));
   };
 
+  const handleHowDidYouMeetUsChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      howDidYouMeetUs: value,
+    }));
+  };
+
   const formatDateForServer = (dateStr: string) => {
     // Converte de DD/MM/YYYY para YYYY-MM-DD (formato ISO)
     if (!dateStr || dateStr.length !== 10) return "";
-    
+
     try {
       const parts = dateStr.split("/");
       if (parts.length !== 3) return "";
-      
+
       const day = parseInt(parts[0], 10);
       const month = parseInt(parts[1], 10);
       const year = parseInt(parts[2], 10);
-      
+
       // Validação básica
       if (
         isNaN(day) || day < 1 || day > 31 ||
@@ -189,7 +201,7 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
       ) {
         return "";
       }
-      
+
       return `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
     } catch (error) {
       return "";
@@ -200,23 +212,23 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
-  
+
     // Basic validation
-    if (!formData.fullName || !formData.email || !formData.cpf || 
-        !formData.rg || !formData.phone || !formData.birthDate || 
-        !formData.boardingLocation) {
+    if (!formData.fullName || !formData.email || !formData.cpf ||
+      !formData.rg || !formData.phone || !formData.birthDate ||
+      !formData.boardingLocation || !formData.city || !formData.howDidYouMeetUs) {
       setError("Por favor, preencha todos os campos obrigatórios.");
       setIsSubmitting(false);
       return;
     }
-    
+
     // Validação do formato da data
     if (formData.birthDate.length !== 10 || !formData.birthDate.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
       setError("A data de nascimento deve estar no formato DD/MM/AAAA.");
       setIsSubmitting(false);
       return;
     }
-    
+
     // Conversão da data
     const formattedDate = formatDateForServer(formData.birthDate);
     if (!formattedDate) {
@@ -224,7 +236,7 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
       setIsSubmitting(false);
       return;
     }
-  
+
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
@@ -232,20 +244,20 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
       setIsSubmitting(false);
       return;
     }
-  
+
     // Format data if needed
     const formattedData = {
       ...formData,
       // Converter para ISO format
       birthDate: new Date(formattedDate).toISOString(),
     };
-  
+
     try {
       const response = await axios.post(
-        "https://vandre-backend.vercel.app/api/bookings",
+        `${API_URL}/api/bookings`,
         formattedData
       );
-      
+
       if (response.status === 201) {
         setSuccess(true);
         // Reset form after successful submission
@@ -260,14 +272,16 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
             birthDate: "",
             phone: "",
             email: "",
-            boardingLocation: travelPackage.boardingLocations[0] || "",
+            boardingLocation: travelPackage.boardingLocations?.[0] || "",
+            city: "",
+            howDidYouMeetUs: "",
           });
         }, 2000);
       }
     } catch (err: any) {
       console.error("Booking error:", err);
       setError(
-        err.response?.data?.message || 
+        err.response?.data?.message ||
         "Ocorreu um erro ao fazer a reserva. Por favor, tente novamente."
       );
     } finally {
@@ -287,9 +301,9 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between mt-4">
             <span>Reserva para {travelPackage.name}</span>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={openPdf}
               className="flex items-center gap-2"
             >
@@ -324,7 +338,7 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
                     required
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -351,7 +365,7 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
                     required
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="rg">RG</Label>
                   <Input
@@ -363,7 +377,7 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
                     required
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="phone">Telefone</Label>
                   <Input
@@ -390,11 +404,11 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
                     maxLength={10}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="boardingLocation">Local de embarque</Label>
-                  <Select 
-                    value={formData.boardingLocation} 
+                  <Select
+                    value={formData.boardingLocation || undefined}
                     onValueChange={handleBoardingLocationChange}
                   >
                     <SelectTrigger id="boardingLocation">
@@ -410,7 +424,42 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
                   </Select>
                 </div>
               </div>
-              
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="city">Cidade</Label>
+                  <Input
+                    id="city"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    placeholder="Digite sua cidade"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="howDidYouMeetUs">Como você nos conheceu?</Label>
+                  <Select
+                    value={formData.howDidYouMeetUs || undefined}
+                    onValueChange={handleHowDidYouMeetUsChange}
+                  >
+                    <SelectTrigger id="howDidYouMeetUs">
+                      <SelectValue placeholder="Selecione uma opção" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Instagram">Instagram</SelectItem>
+                      <SelectItem value="Facebook">Facebook</SelectItem>
+                      <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                      <SelectItem value="Indicação de amigos">Indicação de amigos</SelectItem>
+                      <SelectItem value="Google">Google</SelectItem>
+                      <SelectItem value="Site">Site</SelectItem>
+                      <SelectItem value="Outros">Outros</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               {error && (
                 <div className="bg-red-50 p-3 rounded-md">
                   <p className="text-red-600 text-sm">{error}</p>
