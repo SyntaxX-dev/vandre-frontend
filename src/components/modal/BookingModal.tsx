@@ -57,7 +57,7 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
     birthDate: "",
     phone: "",
     email: "",
-    boardingLocation: travelPackage.boardingLocations[0] || "",
+    boardingLocation: travelPackage.boardingLocations?.[0] || "",
     city: "",
     howDidYouMeetUs: "",
   });
@@ -170,14 +170,14 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
   const handleBoardingLocationChange = (value: string) => {
     setFormData((prev) => ({
       ...prev,
-      boardingLocation: value,
+      boardingLocation: value || "",
     }));
   };
 
   const handleHowDidYouMeetUsChange = (value: string) => {
     setFormData((prev) => ({
       ...prev,
-      howDidYouMeetUs: value,
+      howDidYouMeetUs: value || "",
     }));
   };
 
@@ -272,7 +272,7 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
             birthDate: "",
             phone: "",
             email: "",
-            boardingLocation: travelPackage.boardingLocations[0] || "",
+            boardingLocation: travelPackage.boardingLocations?.[0] || "",
             city: "",
             howDidYouMeetUs: "",
           });
@@ -415,11 +415,14 @@ const BookingModal = ({ isOpen, onClose, travelPackage }: BookingModalProps) => 
                       <SelectValue placeholder="Selecione um local" />
                     </SelectTrigger>
                     <SelectContent>
-                      {travelPackage.boardingLocations.map((location) => (
-                        <SelectItem key={location} value={location}>
-                          {location}
-                        </SelectItem>
-                      ))}
+                      {travelPackage.boardingLocations && Array.isArray(travelPackage.boardingLocations) 
+                        ? travelPackage.boardingLocations.map((location) => (
+                            <SelectItem key={location} value={location}>
+                              {location}
+                            </SelectItem>
+                          ))
+                        : null
+                      }
                     </SelectContent>
                   </Select>
                 </div>
