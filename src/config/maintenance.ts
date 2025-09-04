@@ -1,7 +1,7 @@
 // Configuração de manutenção do site
 export const MAINTENANCE_CONFIG = {
   // Defina como true para ativar o modo de manutenção
-  isMaintenanceMode: false,
+  isMaintenanceMode: true,
   
   // Mensagem personalizada para a página de manutenção
   maintenanceMessage: "Estamos trabalhando para melhorar sua experiência",
